@@ -141,8 +141,10 @@ const updateProfile = async (req, res) => {
 
     // Update profile image if provided
     if (req.file) {
-      console.log("Updating profile image to:", req.file.path);
-      user.profile = req.file.path;
+      // Convert buffer to base64 string for storage
+      const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      console.log("Updating profile image to base64 format");
+      user.profile = base64Image;
     } else {
       console.log("No file received in request");
     }
