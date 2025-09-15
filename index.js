@@ -13,17 +13,28 @@ dotenv.config();
 
 const app = express();
 
-// Simple MongoDB connection for serverless
+// MongoDB connection for serverless with proper configuration
 const connectDB = async () => {
   if (mongoose.connections[0].readyState) {
-    return;
+    return mongoose.connections[0];
   }
   
   try {
-    await mongoose.connect(process.env.MongoDB);
+    const connection = await mongoose.connect(process.env.MongoDB, {
+      bufferCommands: false,
+      bufferMaxEntries: 0,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      maxPoolSize: 5,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      family: 4
+    });
     console.log("MongoDB connected");
+    return connection;
   } catch (error) {
     console.error("MongoDB connection error:", error);
+    throw error;
   }
 };
 
@@ -47,12 +58,16 @@ app.get("/test", (req, res) => {
     res.json({ message: "Test endpoint working", timestamp: new Date().toISOString() });
 });
 
-// Initialize DB connection with error handling
-try {
-    connectDB();
-} catch (error) {
-    console.error("Failed to connect to database:", error);
-}
+// Middleware to ensure database connection for each request
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database connection failed:", error);
+    res.status(500).json({ message: "Database connection failed" });
+  }
+});
 
 app.use("/api/auth", AuthRoutes);
 app.use("/api/blog", BlogRoutes);
