@@ -13,23 +13,28 @@ const createComment = async (req, res) => {
       });
     }
     
-    // Use provided user ID or create anonymous comment
-    const userId = user || req.user?._id || null;
+    // Use provided user ID or authenticated user ID
+    const userId = user || req.user?._id;
     
     const newComment = new CommentModel({
       post: blogId,
-      user: userId,
+      user: userId || null,
       comment,
-      userName: userName || (req.user?.name) || "Anonymous"
+      userName: userName || req.user?.name || "Anonymous"
     });
     
     await newComment.save();
+    
+    // Populate the user data before sending response
+    await newComment.populate('user', 'name profile');
+    
     const existPost = await BlogModel.findById(blogId);
     if (!existPost) {
       return res.status(404).json({ success: false, message: "Post not found" });
     }
     existPost.comments.push(newComment._id);
     await existPost.save();
+    
     res.status(200).json({ 
       success: true, 
       message: "Comment added successfully", 
