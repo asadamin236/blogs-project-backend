@@ -10,24 +10,9 @@ const createBlog = async (req, res) => {
       return res.status(400).json({ message: "Image is required" });
     }
 
-    // For memory storage, we need to save the file to public directory
-    
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-    
-    // Generate unique filename
-    const fileExtension = path.extname(req.file.originalname);
-    const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${fileExtension}`;
-    const filePath = path.join(uploadsDir, fileName);
-    
-    // Write file to disk
-    fs.writeFileSync(filePath, req.file.buffer);
-    
-    // Store relative path in database
-    const imagePath = `/public/uploads/${fileName}`;
+    // Convert buffer to base64 string for storage
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    const imagePath = base64Image;
     
     const blog = new BlogModel({ title, description, image: imagePath });
     await blog.save();
@@ -71,24 +56,9 @@ const updateBlog = async (req, res) => {
     
     // If a new image is uploaded, include it in the update
     if (req.file) {
-      // For memory storage, we need to save the file to public directory
-      
-      // Create uploads directory if it doesn't exist
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-      }
-      
-      // Generate unique filename
-      const fileExtension = path.extname(req.file.originalname);
-      const fileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}${fileExtension}`;
-      const filePath = path.join(uploadsDir, fileName);
-      
-      // Write file to disk
-      fs.writeFileSync(filePath, req.file.buffer);
-      
-      // Store relative path in database
-      updateData.image = `/public/uploads/${fileName}`;
+      // Convert buffer to base64 string for storage
+      const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      updateData.image = base64Image;
     }
     
     const blog = await BlogModel.findByIdAndUpdate(
