@@ -3,7 +3,7 @@ import BlogModel from "../models/Blog.js";
 
 const createComment = async (req, res) => {
   try {
-    const { post, postId, comment } = req.body;
+    const { post, postId, comment, user, userName } = req.body;
     const blogId = post || postId; // Accept both parameter names
     
     if (!blogId || !comment) {
@@ -13,10 +13,14 @@ const createComment = async (req, res) => {
       });
     }
     
+    // Use provided user ID or create anonymous comment
+    const userId = user || req.user?._id || null;
+    
     const newComment = new CommentModel({
       post: blogId,
-      user: req.user._id,
-      comment
+      user: userId,
+      comment,
+      userName: userName || (req.user?.name) || "Anonymous"
     });
     
     await newComment.save();
