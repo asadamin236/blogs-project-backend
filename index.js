@@ -36,6 +36,12 @@ app.use("/api/comments", CommentsRoutes);
 app.use("/api/public", PublicRoutes);
 
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+// For Vercel deployment, export the app instead of listening
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}
+
+// Export the Express app for Vercel
+export default app;
