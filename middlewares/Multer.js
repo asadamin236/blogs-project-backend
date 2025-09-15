@@ -1,21 +1,7 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 
-// Ensure upload directory exists
-const uploadDir = 'public/images';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/images')
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + path.extname(file.originalname))
-  }
-})
+// Use memory storage for serverless environment
+const storage = multer.memoryStorage();
 
 const upload = multer({ 
   storage: storage,

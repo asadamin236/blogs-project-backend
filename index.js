@@ -39,14 +39,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors(corsOptions));
 app.get("/", (req, res) => {
-    res.send("Hello World!");
+    res.json({ message: "Blog API is running!", status: "success" });
 });
 
-// Serve static files from public directory
-app.use("/public", express.static("public"));
+// Test endpoint without database
+app.get("/test", (req, res) => {
+    res.json({ message: "Test endpoint working", timestamp: new Date().toISOString() });
+});
 
-// Initialize DB connection
-connectDB();
+// Initialize DB connection with error handling
+try {
+    connectDB();
+} catch (error) {
+    console.error("Failed to connect to database:", error);
+}
 
 app.use("/api/auth", AuthRoutes);
 app.use("/api/blog", BlogRoutes);
