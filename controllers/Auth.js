@@ -16,7 +16,13 @@ const Register = async (req, res) => {
       userRole = "admin";
     }
     
-    const profilePath = req.file ? req.file.path : null;
+    // Handle profile image - convert to base64 or use default
+    let profilePath = "https://t4.ftcdn.net/jpg/03/64/21/11/360_F_364211147_1qgLVxv1Tcq0Ohz3FawUfrtONzz8nq3e.jpg"; // Default avatar
+    
+    if (req.file) {
+      // Convert buffer to base64 string for storage
+      profilePath = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new UserModel({ 
       name, 
