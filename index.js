@@ -58,22 +58,33 @@ app.get("/test", (req, res) => {
     res.json({ message: "Test endpoint working", timestamp: new Date().toISOString() });
 });
 
-// Middleware to ensure database connection for each request
-app.use(async (req, res, next) => {
+// Database connection test endpoint
+app.get("/db-test", async (req, res) => {
+  try {
+    await connectDB();
+    res.json({ message: "Database connection successful", status: "connected" });
+  } catch (error) {
+    console.error("Database connection test failed:", error);
+    res.status(500).json({ message: "Database connection failed", error: error.message });
+  }
+});
+
+// Database connection middleware for API routes only
+const dbMiddleware = async (req, res, next) => {
   try {
     await connectDB();
     next();
   } catch (error) {
     console.error("Database connection failed:", error);
-    res.status(500).json({ message: "Database connection failed" });
+    res.status(500).json({ message: "Database connection failed", error: error.message });
   }
-});
+};
 
-app.use("/api/auth", AuthRoutes);
-app.use("/api/blog", BlogRoutes);
-app.use("/dashboard", DashboardRoutes);
-app.use("/api/comments", CommentsRoutes);
-app.use("/api/public", PublicRoutes);
+app.use("/api/auth", dbMiddleware, AuthRoutes);
+app.use("/api/blog", dbMiddleware, BlogRoutes);
+app.use("/dashboard", dbMiddleware, DashboardRoutes);
+app.use("/api/comments", dbMiddleware, CommentsRoutes);
+app.use("/api/public", dbMiddleware, PublicRoutes);
 
 // Basic error handling
 app.use((error, req, res, next) => {
