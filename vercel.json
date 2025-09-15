@@ -8,8 +8,17 @@
   ],
   "routes": [
     {
+      "src": "/public/(.*)",
+      "dest": "/index.js"
+    },
+    {
       "src": "/(.*)",
       "dest": "/index.js"
     }
-  ]
+  ],
+  "functions": {
+    "index.js": {
+      "includeFiles": "public/**"
+    }
+  }
 }

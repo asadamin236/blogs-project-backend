@@ -8,10 +8,16 @@ import DashboardRoutes from "./routes/Dashboard.js";
 import CommentsRoutes from "./routes/Comments.js";
 import PublicRoutes from "./routes/Public.js";
 import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
 
 dotenv.config();
 
 const app = express();
+
+// ES module __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // MongoDB connection for serverless with proper configuration
 const connectDB = async () => {
@@ -46,6 +52,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors(corsOptions));
+
+// Serve static files from public directory
+app.use('/public', express.static(path.join(__dirname, 'public')));
 app.get("/", (req, res) => {
     res.json({ message: "Blog API is running!", status: "success" });
 });
