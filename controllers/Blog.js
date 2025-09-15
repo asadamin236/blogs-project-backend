@@ -1,4 +1,6 @@
 import BlogModel from "../models/Blog.js";
+import fs from "fs";
+import path from "path";
 
 const createBlog = async (req, res) => {
   try {
@@ -9,8 +11,6 @@ const createBlog = async (req, res) => {
     }
 
     // For memory storage, we need to save the file to public directory
-    const fs = require('fs');
-    const path = require('path');
     
     // Create uploads directory if it doesn't exist
     const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
@@ -72,8 +72,6 @@ const updateBlog = async (req, res) => {
     // If a new image is uploaded, include it in the update
     if (req.file) {
       // For memory storage, we need to save the file to public directory
-      const fs = require('fs');
-      const path = require('path');
       
       // Create uploads directory if it doesn't exist
       const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
