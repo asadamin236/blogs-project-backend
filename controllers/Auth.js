@@ -60,7 +60,12 @@ const Login = async (req, res) => {
       return res.status(400).json({ message: "Invalid password" });
     }
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "24h" });
-    res.cookie("token", token, { httpOnly: true, secure: false, maxAge: 3 * 24 * 60 * 60 * 1000 } );
+    res.cookie("token", token, { 
+      httpOnly: true, 
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      maxAge: 3 * 24 * 60 * 60 * 1000 
+    });
     
     // Don't send password in response
     const userResponse = {
